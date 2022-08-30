@@ -1,0 +1,45 @@
+{
+  "name": "optiosteam/tikkie-client-php",
+  "description": "Tikkie API client library for PHP developed by Optios.",
+  "keywords": [
+    "tikkie",
+    "client",
+    "api",
+    "php"
+  ],
+  "support": {
+    "issues": "https://github.com/optiosteam/tikkie-client-php/issues",
+    "source": "https://github.com/optiosteam/tikkie-client-php"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Optios BV",
+      "email": "dev@optios.net"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "composer/ca-bundle": "^1.1",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^6.0 || ^7.0",
+    "league/url": "^3.3",
+    "nesbot/carbon": "^2.41"
+  },
+  "autoload": {
+    "psr-4": {
+      "Optios\\Tikkie\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\Optios\\Tikkie\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.5",
+    "phpmd/phpmd": "^2.9",
+    "phpunit/phpunit": "^8.5",
+    "spatie/phpunit-snapshot-assertions": "3.0"
+  }
+}
