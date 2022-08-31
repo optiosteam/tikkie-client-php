@@ -28,6 +28,7 @@ use Optios\Tikkie\Response\SubscriptionResult;
 /**
  * Class TikkieApiClient
  * @package Optios\Tikkie
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TikkieApiClient
 {
@@ -37,32 +38,14 @@ class TikkieApiClient
     private const TIMEOUT              = 10;
     private const CONNECT_TIMEOUT      = 2;
 
-    /**
-     * @var string
-     */
-    private $apiKey;
+    private string $apiKey;
 
-    /**
-     * @var string|null
-     */
-    private $appToken;
+    private ?string $appToken = null;
 
-    /**
-     * @var ClientInterface
-     */
-    private $httpClient;
+    private ClientInterface $httpClient;
 
-    /**
-     * @var bool
-     */
-    private $useProd;
+    private bool $useProd;
 
-    /**
-     * @param string               $apiKey
-     * @param string|null          $appToken
-     * @param ClientInterface|null $httpClient
-     * @param bool                 $useProd
-     */
     public function __construct(
         string $apiKey,
         ?string $appToken = null,
@@ -83,32 +66,20 @@ class TikkieApiClient
         $this->useProd    = $useProd;
     }
 
-    /**
-     * @param CreatePaymentRequest $request
-     *
-     * @return PaymentRequestResult
-     * @throws TikkieApiException
-     */
     public function createPaymentRequest(CreatePaymentRequest $request): PaymentRequestResult
     {
         try {
             $response = $this->httpClient->post(
-                $this->getApiEndpointBase() . 'paymentrequests',
+                $this->getApiEndpointBase() . '/paymentrequests',
                 $this->getRequestOptions($request)
             );
 
             return PaymentRequestResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param string $paymentRequestToken
-     *
-     * @return PaymentRequestResult
-     * @throws TikkieApiException
-     */
     public function getPaymentRequest(string $paymentRequestToken): PaymentRequestResult
     {
         try {
@@ -119,16 +90,10 @@ class TikkieApiClient
 
             return PaymentRequestResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param GetAllPaymentRequests $request
-     *
-     * @return GetAllPaymentRequestsResult
-     * @throws TikkieApiException
-     */
     public function getAllPaymentRequests(GetAllPaymentRequests $request): GetAllPaymentRequestsResult
     {
         $url = Url::createFromUrl($this->getApiEndpointBase() . '/paymentrequests');
@@ -142,20 +107,17 @@ class TikkieApiClient
 
             return GetAllPaymentRequestsResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param GetAllPaymentsForPaymentRequest $request
-     *
-     * @return GetAllPaymentsForPaymentRequestResult
-     * @throws TikkieApiException
-     */
     public function getAllPaymentsForPaymentRequest(
         GetAllPaymentsForPaymentRequest $request
     ): GetAllPaymentsForPaymentRequestResult {
-        $url = Url::createFromUrl($this->getApiEndpointBase() . '/paymentrequests/' . $request->getPaymentRequestToken() . '/payments');
+        $url = Url::createFromUrl(
+            $this->getApiEndpointBase() . '/paymentrequests/' . $request->getPaymentRequestToken() . '/payments'
+        );
+
         $url->getQuery()->modify($request->toArray());
 
         try {
@@ -166,41 +128,29 @@ class TikkieApiClient
 
             return GetAllPaymentsForPaymentRequestResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param GetPaymentPathVariables $query
-     *
-     * @return PaymentResult
-     * @throws TikkieApiException
-     */
-    public function getPaymentForPaymentRequest(GetPaymentPathVariables $query): PaymentResult
+    public function getPaymentFromPaymentRequest(GetPaymentPathVariables $pathVariables): PaymentResult
     {
         try {
             $response = $this->httpClient->get(
                 sprintf(
                     '%s/paymentrequests/%s/payments/%s',
                     $this->getApiEndpointBase(),
-                    $query->getPaymentRequestToken(),
-                    $query->getPaymentToken()
+                    $pathVariables->getPaymentRequestToken(),
+                    $pathVariables->getPaymentToken()
                 ),
                 $this->getRequestOptions()
             );
 
             return PaymentResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param CreateRefund $request
-     *
-     * @return RefundResult
-     * @throws TikkieApiException
-     */
     public function createRefund(CreateRefund $request): RefundResult
     {
         try {
@@ -216,79 +166,60 @@ class TikkieApiClient
 
             return RefundResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param GetRefundPathVariables $query
-     *
-     * @return RefundResult
-     * @throws TikkieApiException
-     */
-    public function getRefund(GetRefundPathVariables $query): RefundResult
+    public function getRefund(GetRefundPathVariables $pathVariables): RefundResult
     {
         try {
             $response = $this->httpClient->get(
                 sprintf(
                     '%s/paymentrequests/%s/payments/%s/refunds/%s',
                     $this->getApiEndpointBase(),
-                    $query->getPaymentRequestToken(),
-                    $query->getPaymentToken(),
-                    $query->getRefundToken()
+                    $pathVariables->getPaymentRequestToken(),
+                    $pathVariables->getPaymentToken(),
+                    $pathVariables->getRefundToken()
                 ),
                 $this->getRequestOptions()
             );
 
             return RefundResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @param SubscribeWebhookNotificationsRequest $request
-     *
-     * @return SubscriptionResult
-     * @throws TikkieApiException
-     */
     public function subscribeWebhookNotifications(SubscribeWebhookNotificationsRequest $request): SubscriptionResult
     {
         try {
             $response = $this->httpClient->post(
-                $this->getApiEndpointBase() . 'paymentrequestssubscription',
+                $this->getApiEndpointBase() . '/paymentrequestssubscription',
                 $this->getRequestOptions($request)
             );
 
             return SubscriptionResult::createFromResponse($response);
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @throws TikkieApiException
-     */
     public function deleteNotificationSubscription(): void
     {
         try {
             $this->httpClient->delete(
-                $this->getApiEndpointBase() . 'paymentrequestssubscription',
+                $this->getApiEndpointBase() . '/paymentrequestssubscription',
                 $this->getRequestOptions()
             );
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @return string
-     * @throws TikkieApiException
-     */
     public function getSandboxAppToken(): string
     {
         try {
-            $uri      = $this->getApiEndpointBase() . 'sandboxapps';
+            $uri      = $this->getApiEndpointBase() . '/sandboxapps';
             $response = $this->httpClient->post(
                 $uri,
                 [
@@ -302,24 +233,16 @@ class TikkieApiClient
 
             return $response[ 'appToken' ];
         } catch (ClientException $e) {
-            throw TikkieApiException::createFromClientException($this->useProd, $e);
+            throw TikkieApiException::createFromClientException($e);
         }
     }
 
-    /**
-     * @return string
-     */
     public function getApiEndpointBase(): string
     {
-        return ($this->useProd ? self::API_ENDPOINT : self::API_SANDBOX_ENDPOINT) . self::API_VERSION . '/tikkie/';
+        return ($this->useProd ? self::API_ENDPOINT : self::API_SANDBOX_ENDPOINT) . self::API_VERSION . '/tikkie';
     }
 
-    /**
-     * @param RequestInterface|null $request
-     *
-     * @return array
-     */
-    private function getRequestOptions(?RequestInterface $request = null): array
+    public function getRequestOptions(?RequestInterface $request = null): array
     {
         $options = [
             RequestOptions::HEADERS => [
@@ -335,35 +258,13 @@ class TikkieApiClient
         return $options;
     }
 
-    /**
-     * @return string
-     */
     public function getApiKey(): string
     {
         return $this->apiKey;
     }
 
-    /**
-     * @param string $apiKey
-     */
-    public function setApiKey(string $apiKey): void
-    {
-        $this->apiKey = $apiKey;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getAppToken(): ?string
     {
         return $this->appToken;
-    }
-
-    /**
-     * @param string $appToken
-     */
-    public function setAppToken(string $appToken): void
-    {
-        $this->appToken = $appToken;
     }
 }

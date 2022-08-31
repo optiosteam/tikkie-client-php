@@ -10,8 +10,7 @@ use Carbon\Carbon;
 use Optios\Tikkie\Request\GetAllPaymentRequests;
 use Optios\Tikkie\TikkieApiClient;
 
-$client = new TikkieApiClient('xxxx', 'xxxx', null, false);
-
+$client  = new TikkieApiClient('your_api_key', 'your_app_token', null, false);
 $request = new GetAllPaymentRequests(
     0,
     50

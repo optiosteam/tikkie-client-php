@@ -9,9 +9,8 @@ require_once __DIR__ . "../vendor/autoload.php";
 
 use Optios\Tikkie\TikkieApiClient;
 
-$client = new TikkieApiClient('xxxx', 'xxxx', null, false);
-
-$result = $client->getPaymentRequest('xxxx');
+$client = new TikkieApiClient('your_api_key', 'your_app_token', null, false);
+$result = $client->getPaymentRequest('payment_request_token');
 
 echo '<pre>';
 var_dump($result);

@@ -3,38 +3,21 @@ declare(strict_types = 1);
 
 namespace Optios\Tikkie\Webhook;
 
-/**
- * Class Notification
- * @package Optios\Tikkie\Webhook
- */
 class Notification
 {
-    /**
-     * @var string
-     */
-    private $subscriptionId;
+    const NOTIFICATION_TYPE_PAYMENT = 'PAYMENT';
+    const NOTIFICATION_TYPE_REFUND  = 'REFUND';
 
-    /**
-     * @var string
-     */
-    private $notificationType;
+    private string $subscriptionId;
 
-    /**
-     * @var string
-     */
-    private $paymentRequestToken;
+    private string $notificationType;
 
-    /**
-     * @var string
-     */
-    private $paymentToken;
+    private string $paymentRequestToken;
 
-    /**
-     * @param string $subscriptionId
-     * @param string $notificationType
-     * @param string $paymentRequestToken
-     * @param string $paymentToken
-     */
+    private string $paymentToken;
+
+    private ?string $refundToken = null;
+
     public function __construct(
         string $subscriptionId,
         string $notificationType,
@@ -47,50 +30,53 @@ class Notification
         $this->paymentToken        = $paymentToken;
     }
 
-    /**
-     * @param array $array
-     *
-     * @return $this
-     */
-    public function createFromArray(array $array): self
+    public static function createFromArray(array $array): self
     {
-        return new self(
+        $self = new self(
             $array[ 'subscriptionId' ],
             $array[ 'notificationType' ],
             $array[ 'paymentRequestToken' ],
             $array[ 'paymentToken' ]
         );
+
+        $self->setRefundToken($array[ 'refundToken' ] ?? null);
+
+        return $self;
     }
 
-    /**
-     * @return string
-     */
     public function getSubscriptionId(): string
     {
         return $this->subscriptionId;
     }
 
-    /**
-     * @return string
-     */
     public function getNotificationType(): string
     {
         return $this->notificationType;
     }
 
-    /**
-     * @return string
-     */
     public function getPaymentRequestToken(): string
     {
         return $this->paymentRequestToken;
     }
 
-    /**
-     * @return string
-     */
     public function getPaymentToken(): string
     {
         return $this->paymentToken;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRefundToken(): ?string
+    {
+        return $this->refundToken;
+    }
+
+    /**
+     * @param string|null $refundToken
+     */
+    public function setRefundToken(?string $refundToken): void
+    {
+        $this->refundToken = $refundToken;
     }
 }

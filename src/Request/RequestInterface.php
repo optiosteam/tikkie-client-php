@@ -5,8 +5,5 @@ namespace Optios\Tikkie\Request;
 
 interface RequestInterface
 {
-    /**
-     * @return array
-     */
     public function toArray(): array;
 }

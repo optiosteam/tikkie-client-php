@@ -6,51 +6,26 @@ namespace Optios\Tikkie\Response;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 
-/**
- * Class PaymentResult
- * @package Optios\Tikkie\Response
- */
 class PaymentResult extends MainResultBase
 {
-    /**
-     * @var string
-     */
-    private $paymentToken;
+    private string $paymentToken;
 
-    /**
-     * @var string
-     */
-    private $tikkieId;
+    private string $tikkieId;
 
-    /**
-     * @var string
-     */
-    private $counterPartyName;
+    private string $counterPartyName;
 
-    /**
-     * @var string
-     */
-    private $counterPartyAccountNumber;
+    private string $counterPartyAccountNumber;
 
-    /**
-     * @var int
-     */
-    private $amountInCents;
+    private int $amountInCents;
 
-    /**
-     * @var string
-     */
-    private $description;
+    private string $description;
 
-    /**
-     * @var CarbonInterface
-     */
-    private $createdDateTime;
+    private CarbonInterface $createdDateTime;
 
     /**
      * @var RefundResult[]
      */
-    private $refunds;
+    private array $refunds;
 
     /**
      * @param string          $paymentToken
@@ -82,17 +57,13 @@ class PaymentResult extends MainResultBase
         $this->refunds                   = $refunds;
     }
 
-
-    /**
-     * @param array $array
-     *
-     * @return static
-     */
     public static function createFromArray(array $array): self
     {
         $refunds = [];
-        foreach ($array[ 'refunds' ] as $refundArray) {
-            $refunds[] = RefundResult::createFromArray($refundArray);
+        if (array_key_exists('refunds', $array)) {
+            foreach ($array[ 'refunds' ] as $refundArray) {
+                $refunds[] = RefundResult::createFromArray($refundArray);
+            }
         }
 
         return new self(
@@ -107,57 +78,36 @@ class PaymentResult extends MainResultBase
         );
     }
 
-    /**
-     * @return string
-     */
     public function getPaymentToken(): string
     {
         return $this->paymentToken;
     }
 
-    /**
-     * @return string
-     */
     public function getTikkieId(): string
     {
         return $this->tikkieId;
     }
 
-    /**
-     * @return string
-     */
     public function getCounterPartyName(): string
     {
         return $this->counterPartyName;
     }
 
-    /**
-     * @return string
-     */
     public function getCounterPartyAccountNumber(): string
     {
         return $this->counterPartyAccountNumber;
     }
 
-    /**
-     * @return int
-     */
     public function getAmountInCents(): int
     {
         return $this->amountInCents;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @return CarbonInterface
-     */
     public function getCreatedDateTime(): CarbonInterface
     {
         return $this->createdDateTime;

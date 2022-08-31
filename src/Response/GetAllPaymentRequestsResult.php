@@ -3,16 +3,12 @@ declare(strict_types = 1);
 
 namespace Optios\Tikkie\Response;
 
-/**
- * Class GetAllPaymentRequestsResult
- * @package Optios\Tikkie\Response
- */
 class GetAllPaymentRequestsResult extends GetAllResultBase
 {
     /**
      * @var PaymentRequestResult[]
      */
-    private $paymentRequests;
+    private array $paymentRequests;
 
     /**
      * @param int                    $totalElementCount
@@ -25,11 +21,6 @@ class GetAllPaymentRequestsResult extends GetAllResultBase
         $this->paymentRequests = $paymentRequests;
     }
 
-    /**
-     * @param array $array
-     *
-     * @return static
-     */
     public static function createFromArray(array $array): self
     {
         $paymentRequests = [];

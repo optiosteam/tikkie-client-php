@@ -5,31 +5,16 @@ namespace Optios\Tikkie\Exception;
 
 use GuzzleHttp\Exception\ClientException;
 
-/**
- * Class TikkieApiException
- * @package Optios\Tikkie\Exception
- */
 class TikkieApiException extends \Exception
 {
     /**
-     * @var bool
-     */
-    private $useProd;
-
-    /**
      * @var Error[]|null
      */
-    private $errors;
+    private ?array $errors = null;
 
-    /**
-     * @param ClientException $e
-     *
-     * @return static
-     */
-    public static function createFromClientException(bool $useProd, ClientException $e): self
+    public static function createFromClientException(ClientException $e): self
     {
         $self = new self($e->getMessage(), $e->getCode());
-        $self->setUseProd($useProd);
 
         $contents = $e->getResponse()->getBody()->getContents() ?: null;
 
@@ -38,6 +23,11 @@ class TikkieApiException extends \Exception
         }
 
         $message = json_decode($contents, true);
+
+        if (! isset($message[ 'errors' ])) {
+            return $self;
+        }
+
         foreach ($message[ 'errors' ] as $error) {
             $self->addError(Error::createFromArray($error));
         }
@@ -46,32 +36,13 @@ class TikkieApiException extends \Exception
     }
 
     /**
-     * @return bool
-     */
-    public function isUseProd(): bool
-    {
-        return $this->useProd;
-    }
-
-    /**
-     * @param bool $useProd
-     */
-    public function setUseProd(bool $useProd): void
-    {
-        $this->useProd = $useProd;
-    }
-
-    /**
      * @return Error[]
      */
-    public function getErrors(): array
+    public function getErrors(): ?array
     {
         return $this->errors;
     }
 
-    /**
-     * @param Error $error
-     */
     public function addError(Error $error): void
     {
         $this->errors[] = $error;

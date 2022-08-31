@@ -3,44 +3,18 @@ declare(strict_types = 1);
 
 namespace Optios\Tikkie\Exception;
 
-/**
- * Class Error
- * @package Optios\Tikkie\Exception
- */
 class Error
 {
-    /**
-     * @var string
-     */
-    private $code;
+    private string $code;
 
-    /**
-     * @var string
-     */
-    private $message;
+    private string $message;
 
-    /**
-     * @var string
-     */
-    private $reference;
+    private string $reference;
 
-    /**
-     * @var int
-     */
-    private $status;
+    private int $status;
 
-    /**
-     * @var string
-     */
-    private $traceId;
+    private string $traceId;
 
-    /**
-     * @param string $code
-     * @param string $message
-     * @param string $reference
-     * @param int    $status
-     * @param string $traceId
-     */
     public function __construct(string $code, string $message, string $reference, int $status, string $traceId)
     {
         $this->code      = $code;
@@ -50,11 +24,6 @@ class Error
         $this->traceId   = $traceId;
     }
 
-    /**
-     * @param array $error
-     *
-     * @return static
-     */
     public static function createFromArray(array $error): self
     {
         return new self(
@@ -66,41 +35,26 @@ class Error
         );
     }
 
-    /**
-     * @return string
-     */
     public function getCode(): string
     {
         return $this->code;
     }
 
-    /**
-     * @return string
-     */
     public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * @return string
-     */
     public function getReference(): string
     {
         return $this->reference;
     }
 
-    /**
-     * @return int
-     */
     public function getStatus(): int
     {
         return $this->status;
     }
 
-    /**
-     * @return string
-     */
     public function getTraceId(): string
     {
         return $this->traceId;

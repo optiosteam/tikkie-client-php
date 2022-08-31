@@ -3,25 +3,12 @@ declare(strict_types = 1);
 
 namespace Optios\Tikkie\Request;
 
-/**
- * Class TransactionBase
- * @package Optios\Tikkie\Request
- */
 abstract class TransactionBase implements RequestInterface
 {
-    /**
-     * @var string;
-     */
-    protected $description;
+    protected string $description;
 
-    /**
-     * @var string|null
-     */
-    protected $referenceId;
+    protected ?string $referenceId = null;
 
-    /**
-     * @param string $description
-     */
     public function __construct(string $description)
     {
         if (strlen($description) > 35) {
@@ -31,9 +18,6 @@ abstract class TransactionBase implements RequestInterface
         $this->description = $description;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function toArray(): array
     {
         $array = [
@@ -44,25 +28,16 @@ abstract class TransactionBase implements RequestInterface
         return array_filter($array);
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @return string|null
-     */
     public function getReferenceId(): ?string
     {
         return $this->referenceId;
     }
 
-    /**
-     * @param string|null $referenceId
-     */
     public function setReferenceId(?string $referenceId): void
     {
         if (null !== $referenceId && ! preg_match("/^[a-zA-Z0-9!&'()+-.\/:?_`, ]{1,35}$/", $referenceId)) {
