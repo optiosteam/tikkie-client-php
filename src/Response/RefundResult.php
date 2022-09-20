@@ -5,6 +5,7 @@ namespace Optios\Tikkie\Response;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Optios\Tikkie\Request\GetAllRequestBase;
 
 class RefundResult extends MainResultBase
 {
@@ -82,5 +83,17 @@ class RefundResult extends MainResultBase
     public function setReferenceId(?string $referenceId): void
     {
         $this->referenceId = $referenceId;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'refundToken' => $this->getRefundToken(),
+            'amountInCents' => $this->getAmountInCents(),
+            'description' => $this->getDescription(),
+            'createdDateTime' => $this->getCreatedDateTime()->format(GetAllRequestBase::SEARCH_DATE_FORMAT),
+            'status' => $this->getStatus(),
+            'referenceId' => $this->getReferenceId(),
+        ];
     }
 }

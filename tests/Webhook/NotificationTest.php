@@ -10,14 +10,14 @@ class NotificationTest extends TestCase
 {
     public function testNotification(): void
     {
-        $notification = Notification::createFromArray(
-            [
-                'subscriptionId' => 'sub123',
-                'notificationType' => 'PAYMENT',
-                'paymentRequestToken' => 'xyz',
-                'paymentToken' => '123456abc',
-            ]
-        );
+        $data = [
+            'subscriptionId' => 'sub123',
+            'notificationType' => 'PAYMENT',
+            'paymentRequestToken' => 'xyz',
+            'paymentToken' => '123456abc',
+        ];
+
+        $notification = Notification::createFromArray($data);
 
         $this->assertEquals('sub123', $notification->getSubscriptionId());
         $this->assertEquals('PAYMENT', $notification->getNotificationType());
@@ -26,5 +26,6 @@ class NotificationTest extends TestCase
         $this->assertNull($notification->getRefundToken());
         $notification->setRefundToken('refund123');
         $this->assertEquals('refund123', $notification->getRefundToken());
+        $this->assertEquals(array_merge(['refundToken' => 'refund123'], $data), $notification->toArray());
     }
 }

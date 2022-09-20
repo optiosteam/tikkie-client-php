@@ -79,4 +79,15 @@ class Notification
     {
         $this->refundToken = $refundToken;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'subscriptionId' => $this->getSubscriptionId(),
+            'notificationType' => $this->getNotificationType(),
+            'paymentRequestToken' => $this->getPaymentRequestToken(),
+            'paymentToken' => $this->getPaymentToken(),
+            'refundToken' => $this->getRefundToken(),
+        ];
+    }
 }

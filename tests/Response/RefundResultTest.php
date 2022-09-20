@@ -10,13 +10,15 @@ class RefundResultTest extends TestCase
 {
     public function testRefundResult(): void
     {
-        $result = RefundResult::createFromArray([
+        $data = [
             'refundToken' => '123456abc',
             'amountInCents' => 250,
             'description' => 'Refund description',
-            'createdDateTime' => '2022-08-31 11:22:33',
+            'createdDateTime' => '2022-08-31T11:22:33.000Z',
             'status' => 'PENDING',
-        ]);
+        ];
+
+        $result = RefundResult::createFromArray($data);
 
         $this->assertEquals('123456abc', $result->getRefundToken());
         $this->assertEquals(250, $result->getAmountInCents());
@@ -27,5 +29,6 @@ class RefundResultTest extends TestCase
 
         $result->setReferenceId('ref_123');
         $this->assertEquals('ref_123', $result->getReferenceId());
+        $this->assertEquals(array_merge(['referenceId' => 'ref_123'], $data), $result->toArray());
     }
 }

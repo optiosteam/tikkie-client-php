@@ -5,6 +5,7 @@ namespace Optios\Tikkie\Response;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Optios\Tikkie\Request\GetAllRequestBase;
 
 class PaymentRequestResult extends MainResultBase
 {
@@ -134,5 +135,21 @@ class PaymentRequestResult extends MainResultBase
     public function getTotalAmountPaidInCents(): int
     {
         return $this->totalAmountPaidInCents;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'paymentRequestToken' => $this->getPaymentRequestToken(),
+            'url' => $this->getUrl(),
+            'description' => $this->getDescription(),
+            'createdDateTime' => $this->getCreatedDateTime()->format(GetAllRequestBase::SEARCH_DATE_FORMAT),
+            'expiryDate' => $this->getExpiryDate()->format('Y-m-d'),
+            'status' => $this->getStatus(),
+            'numberOfPayments' => $this->getNumberOfPayments(),
+            'totalAmountPaidInCents' => $this->getTotalAmountPaidInCents(),
+            'amountInCents' => $this->getAmountInCents(),
+            'referenceId' => $this->getReferenceId(),
+        ];
     }
 }

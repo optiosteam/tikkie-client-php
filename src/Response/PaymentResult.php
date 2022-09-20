@@ -5,6 +5,7 @@ namespace Optios\Tikkie\Response;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Optios\Tikkie\Request\GetAllRequestBase;
 
 class PaymentResult extends MainResultBase
 {
@@ -119,5 +120,24 @@ class PaymentResult extends MainResultBase
     public function getRefunds(): array
     {
         return $this->refunds;
+    }
+
+    public function toArray(): array
+    {
+        $refunds = [];
+        foreach ($this->getRefunds() as $refund) {
+            $refunds[] = $refund->toArray();
+        }
+
+        return [
+            'paymentToken' => $this->getPaymentToken(),
+            'tikkieId' => $this->getTikkieId(),
+            'counterPartyName' => $this->getCounterPartyName(),
+            'counterPartyAccountNumber' => $this->getCounterPartyAccountNumber(),
+            'amountInCents' => $this->getAmountInCents(),
+            'description' => $this->getDescription(),
+            'createdDateTime' => $this->getCreatedDateTime()->format(GetAllRequestBase::SEARCH_DATE_FORMAT),
+            'refunds' => $refunds,
+        ];
     }
 }
