@@ -5,8 +5,11 @@ namespace Tests\Optios\Tikkie;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
+use Optios\Tikkie\Exception\TikkieApiException;
 use Optios\Tikkie\Request\CreatePaymentRequest;
 use Optios\Tikkie\Request\CreateRefund;
 use Optios\Tikkie\Request\GetAllPaymentRequests;
@@ -51,6 +54,22 @@ class TikkieApiClientTest extends TestCase
     {
         $this->assertEquals('some-api-key', $this->tikkieApiClient->getApiKey());
         $this->assertEquals('some-app-token', $this->tikkieApiClient->getAppToken());
+    }
+
+    public function testCreateWithoutClient(): void
+    {
+        $tikkieApiClient = new TikkieApiClient(
+            $this->apiKey,
+            $this->appToken,
+            null,
+            $this->useProd
+        );
+
+        $clientProperty = new \ReflectionProperty($tikkieApiClient, 'httpClient');
+        $clientProperty->setAccessible(true);
+        $client = $clientProperty->getValue($tikkieApiClient);
+
+        $this->assertInstanceOf(Client::class, $client);
     }
 
     public function testGetApiEndpointBase(): void
@@ -128,6 +147,24 @@ class TikkieApiClientTest extends TestCase
         $this->assertEquals('Some payment request description', $result->getDescription());
     }
 
+    public function testCreatePaymentRequestException(): void
+    {
+        $request = new CreatePaymentRequest('Some payment request description');
+        $request->setAmountInCents(200);
+
+        $this->httpClient
+            ->expects($this->once())
+            ->method('post')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->createPaymentRequest($request);
+    }
+
     public function testGetPaymentRequest(): void
     {
         $this->httpClient
@@ -173,6 +210,21 @@ class TikkieApiClientTest extends TestCase
         $this->assertEquals('https://tikkie.me/pay/Tikkie/qzdnzr8hnVWTgXXcFRLUMc', $result->getUrl());
         $this->assertEquals(200, $result->getAmountInCents());
         $this->assertEquals('Some payment request description', $result->getDescription());
+    }
+
+    public function testGetPaymentRequestException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('get')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->getPaymentRequest('qzdnzr8hnVWTgXXcFRLUMc');
     }
 
     public function testGetAllPaymentRequest(): void
@@ -244,6 +296,21 @@ class TikkieApiClientTest extends TestCase
         $this->assertEquals('Some payment request description', $result->getPaymentRequests()[ 0 ]->getDescription());
     }
 
+    public function testGetAllPaymentRequestException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('get')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->getAllPaymentRequests(new GetAllPaymentRequests());
+    }
+
     public function testGetAllPaymentsForPaymentRequest(): void
     {
         $this->httpClient
@@ -251,7 +318,7 @@ class TikkieApiClientTest extends TestCase
             ->method('get')
             ->willReturnCallback(function($uri, array $options) {
                 $this->assertEquals(
-                    //phpcs:disable
+                //phpcs:disable
                     'https://api-sandbox.abnamro.com/v2/tikkie/paymentrequests/qzdnzr8hnVWTgXXcFRLUMc/payments?pageNumber=0&pageSize=50&includeRefunds=true',
                     //phpcs:enable
                     $uri
@@ -305,6 +372,23 @@ class TikkieApiClientTest extends TestCase
         );
     }
 
+    public function testGetAllPaymentsForPaymentRequestException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('get')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->getAllPaymentsForPaymentRequest(
+            new GetAllPaymentsForPaymentRequest('qzdnzr8hnVWTgXXcFRLUMc')
+        );
+    }
+
     public function testGetPaymentFromPaymentRequest(): void
     {
         $this->httpClient
@@ -312,7 +396,7 @@ class TikkieApiClientTest extends TestCase
             ->method('get')
             ->willReturnCallback(function($uri, array $options) {
                 $this->assertEquals(
-                    //phpcs:disable
+                //phpcs:disable
                     'https://api-sandbox.abnamro.com/v2/tikkie/paymentrequests/qzdnzr8hnVWTgXXcFRLUMc/payments/132465',
                     //phpcs:enable
                     $uri
@@ -360,6 +444,23 @@ class TikkieApiClientTest extends TestCase
         );
     }
 
+    public function testGetPaymentFromPaymentRequestException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('get')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->getPaymentFromPaymentRequest(
+            new GetPaymentPathVariables('qzdnzr8hnVWTgXXcFRLUMc', '132465')
+        );
+    }
+
     public function testCreateRefund(): void
     {
         $request = new CreateRefund(
@@ -376,7 +477,7 @@ class TikkieApiClientTest extends TestCase
             ->method('post')
             ->willReturnCallback(function($uri, array $options) {
                 $this->assertEquals(
-                    //phpcs:disable
+                //phpcs:disable
                     'https://api-sandbox.abnamro.com/v2/tikkie/paymentrequests/qzdnzr8hnVWTgXXcFRLUMc/payments/132465/refunds',
                     //phpcs:enable
                     $uri
@@ -420,6 +521,30 @@ class TikkieApiClientTest extends TestCase
         $this->assertNull($result->getReferenceId());
     }
 
+    public function testCreateRefundException(): void
+    {
+        $request = new CreateRefund(
+            new GetPaymentPathVariables(
+                'qzdnzr8hnVWTgXXcFRLUMc',
+                '132465'
+            ),
+            'Some payment request description',
+            200
+        );
+
+        $this->httpClient
+            ->expects($this->once())
+            ->method('post')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->createRefund($request);
+    }
+
     public function testGetRefund(): void
     {
         $this->httpClient
@@ -427,7 +552,7 @@ class TikkieApiClientTest extends TestCase
             ->method('get')
             ->willReturnCallback(function($uri, array $options) {
                 $this->assertEquals(
-                    //phpcs:disable
+                //phpcs:disable
                     'https://api-sandbox.abnamro.com/v2/tikkie/paymentrequests/qzdnzr8hnVWTgXXcFRLUMc/payments/132465/refunds/123456abc',
                     //phpcs:enable
                     $uri
@@ -467,6 +592,23 @@ class TikkieApiClientTest extends TestCase
         $this->assertEquals('2022-08-31 11:22:33', $result->getCreatedDateTime()->format('Y-m-d H:i:s'));
         $this->assertEquals('PENDING', $result->getStatus());
         $this->assertNull($result->getReferenceId());
+    }
+
+    public function testGetRefundException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('get')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->getRefund(
+            new GetRefundPathVariables('qzdnzr8hnVWTgXXcFRLUMc', '132465', '123456abc')
+        );
     }
 
     public function testSubscribeWebhookNotifications(): void
@@ -509,6 +651,23 @@ class TikkieApiClientTest extends TestCase
         $this->assertEquals('sub123456xyz', $result->getSubscriptionId());
     }
 
+    public function testSubscribeWebhookNotificationsException(): void
+    {
+        $request = new SubscribeWebhookNotificationsRequest('https://www.mywebsite.com/tikkie/webhook');
+
+        $this->httpClient
+            ->expects($this->once())
+            ->method('post')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->subscribeWebhookNotifications($request);
+    }
+
     public function testDeleteNotificationSubscription(): void
     {
         $this->httpClient
@@ -532,6 +691,21 @@ class TikkieApiClientTest extends TestCase
                 return new Response(200);
             });
 
+        $this->tikkieApiClient->deleteNotificationSubscription();
+    }
+
+    public function testDeleteNotificationSubscriptionException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('delete')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
         $this->tikkieApiClient->deleteNotificationSubscription();
     }
 
@@ -564,5 +738,20 @@ class TikkieApiClientTest extends TestCase
 
         $appToken = $this->tikkieApiClient->getSandboxAppToken();
         $this->assertEquals('some-app-token', $appToken);
+    }
+
+    public function testGetSandboxAppTokenException(): void
+    {
+        $this->httpClient
+            ->expects($this->once())
+            ->method('post')
+            ->willThrowException(new ClientException(
+                'some-message',
+                $this->createMock(Request::class),
+                $this->createMock(Response::class)
+            ));
+
+        $this->expectException(TikkieApiException::class);
+        $this->tikkieApiClient->getSandboxAppToken();
     }
 }

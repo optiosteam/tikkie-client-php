@@ -20,4 +20,10 @@ class SubscribeWebhookNotificationsRequestTest extends TestCase
             $request->toArray()
         );
     }
+
+    public function testSubscribeWebhookNotificationsRequestException(): void
+    {
+        $this->expectException(\LogicException::class);
+        new SubscribeWebhookNotificationsRequest('exception');
+    }
 }
